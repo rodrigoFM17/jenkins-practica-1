@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/rodrigoFM17/jenkins-practica-1'
+                git branch: 'main', url: 'https://github.com/rodrigoFM17/jenkins-practica-1.git'
             }
         }
 
