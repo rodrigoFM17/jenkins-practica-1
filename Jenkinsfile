@@ -27,25 +27,27 @@ pipeline {
 
         stage('Deploy') {
             steps {
+                script {
+                    def ip = ""
+                    if(env.BRANCH_NAME == "main"){
+                        ip = env.EC2_MAIN_IP
+                    } else if(env.BRANCH_NAME == "dev"){
+                        ip = env.EC2_DEV_IP
+                    } else if(env.BRANCH_NAME == "qa") {
+                        ip = env.EC2_QA_IP
+                    } else {
+                        error("no hay un servidor para esta rama ${env.BRACH_NAME}")
+                    }
 
-                def ip = ""
-                if(env.BRANCH_NAME == "main"){
-                    ip = env.EC2_MAIN_IP
-                } else if(env.BRANCH_NAME == "dev"){
-                    ip = env.EC2_DEV_IP
-                } else if(env.BRANCH_NAME == "qa") {
-                    ip = env.EC2_QA_IP
-                } else {
-                    error("no hay un servidor para esta rama ${env.BRACH_NAME}")
-                }
-                sh """
-                ssh -i $SSH_KEY -o StrictHostKeyChecking=no $EC2_USER@$ip '
-                    cd $REMOTE_PATH &&
-                    git pull origin ${env.BRANCH_NAME} &&   
-                    npm ci &&
-                    pm2 restart health-api || pm2 start server.js --name health-api
-                '
-                """
+                    sh """
+                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no $EC2_USER@$ip '
+                        cd $REMOTE_PATH &&
+                        git pull origin ${env.BRANCH_NAME} &&   
+                        npm ci &&
+                        pm2 restart health-api || pm2 start server.js --name health-api
+                    '
+                    """
+                }    
             }
         }
     }
