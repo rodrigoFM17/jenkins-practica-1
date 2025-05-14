@@ -28,12 +28,13 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
+                    def branch = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
                     def ip = ""
-                    if(env.BRANCH_NAME == "main"){
+                    if(branch == "main"){
                         ip = env.EC2_MAIN_IP
-                    } else if(env.BRANCH_NAME == "dev"){
+                    } else if(branch == "dev"){
                         ip = env.EC2_DEV_IP
-                    } else if(env.BRANCH_NAME == "qa") {
+                    } else if(branch == "qa") {
                         ip = env.EC2_QA_IP
                     } else {
                         error("no hay un servidor para esta rama ${env.BRACH_NAME}")
