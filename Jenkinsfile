@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/rodrigoFM17/jenkins-practica-1.git'
+                checkout scm
             }
         }
 
@@ -28,7 +28,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    def branch = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                    def branch = env.GIT_BRANCH
+                    echo branch
                     def ip = ""
                     if(branch == "main"){
                         ip = env.EC2_MAIN_IP
@@ -43,7 +44,7 @@ pipeline {
                     sh """
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no $EC2_USER@$ip '
                         cd $REMOTE_PATH &&
-                        git pull origin ${env.BRANCH_NAME} &&   
+                        git pull origin ${branch} &&   
                         npm ci &&
                         pm2 restart health-api || pm2 start server.js --name health-api
                     '
