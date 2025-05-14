@@ -28,7 +28,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    def branch = env.GIT_BRANCH
+                    def branch = env.GIT_BRANCH.replaceAll('origin/', '')
                     echo branch
                     def ip = ""
                     if(branch == "main"){
@@ -38,7 +38,7 @@ pipeline {
                     } else if(branch == "qa") {
                         ip = env.EC2_QA_IP
                     } else {
-                        error("no hay un servidor para esta rama ${env.BRACH_NAME}")
+                        error("no hay un servidor para esta rama ${branch}")
                     }
 
                     sh """
